@@ -64,7 +64,7 @@ public class BillboardEditor : EditorWindow
     private float blend = 0.3f;
     private Vector3 offset;
 
-    [MenuItem("Tools/Billboard工具")]
+    [MenuItem("Tools/Billboard Tool")]
     public static void OpenWindow() 
     {
         BillboardEditor window = GetWindow<BillboardEditor>("Billboard Tool");
@@ -80,7 +80,7 @@ public class BillboardEditor : EditorWindow
         captureCam.clearFlags = CameraClearFlags.Nothing;
         autoAddedCamera = newCam;
         billboardGen.captureCamera = captureCam;
-        Debug.Log("自动添加相机:" + captureCam.name);
+        Debug.Log("Auto added capture camera:" + captureCam.name);
 
     }
     private void OnEnable()
@@ -95,7 +95,7 @@ public class BillboardEditor : EditorWindow
         string[] paths =Directory.GetFiles(Application.dataPath, "M_Billboard.mat", SearchOption.AllDirectories);
         if (paths.Length == 0) 
         {
-            Debug.Log("未找到'M_Billboard'材质，请手动添加。o((⊙﹏⊙))o");
+            Debug.Log("Couldn't find 'M_Billboard' material，please add it manually");
         }
         string materialPath = paths[0].Replace("\\","/").Replace(Application.dataPath,"");
         Material targetMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets"+materialPath, typeof(Material));
@@ -103,7 +103,7 @@ public class BillboardEditor : EditorWindow
         {
             autoMaterial = targetMaterial;
             boardShader = autoMaterial.shader;
-            Debug.Log("自动添加材质: M_Billboard (*^▽^*)");
+            Debug.Log("Auto added material: M_Billboard");
         }
 
         autoShader = Shader.Find("Billboard/S_ShowDepth");
@@ -170,7 +170,7 @@ public class BillboardEditor : EditorWindow
                         g.name = "*Please Replace Material";
                         g.GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
                         g.SetActive(false);
-                        Debug.LogWarning("只有一个物体可以携带 M_Billboard ");
+                        Debug.LogWarning("Only one gameobject in the hierarchy can take 'M_Billboard'");
                         break;
                     }          
                 }
@@ -184,7 +184,7 @@ public class BillboardEditor : EditorWindow
             if (targetObject.name != originalName + "(Billboard)") 
             {
                 targetObject.name = originalName + "(Billboard)";
-                Debug.LogWarning("无法更改对象物体名字。");
+                Debug.LogWarning("Target name is not editable");
             }
         }
         if (captureCam == null) 
@@ -195,7 +195,7 @@ public class BillboardEditor : EditorWindow
     }
     private void OnGUI()
     {
-        if (billboardGen == null) { Debug.LogError("找不到“BillboardGenerator”类。"); return; }
+        if (billboardGen == null) { Debug.LogError("Could not find 'BillboardGenerator' class"); return; }
 
         previousObject = targetObject;
         previousResolution = resolutionLevel;
@@ -209,7 +209,7 @@ public class BillboardEditor : EditorWindow
         }
         else 
         {
-            EditorGUILayout.LabelField("请手动添加材质", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Please manually add billboard material", EditorStyles.boldLabel);
 
             boardMaterial = (Material)EditorGUILayout.ObjectField(boardMaterial, typeof(Material), false);
             autoMaterial = boardMaterial;
@@ -220,7 +220,7 @@ public class BillboardEditor : EditorWindow
         }
         else 
         {
-            depthShader = (Shader)EditorGUILayout.ObjectField("深度着色器", depthShader, typeof(Shader), true);
+            depthShader = (Shader)EditorGUILayout.ObjectField("Depth Shader", depthShader, typeof(Shader), true);
             autoShader = depthShader;
         }
 
@@ -229,7 +229,7 @@ public class BillboardEditor : EditorWindow
         if (boardMaterial != null) 
         {          
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField(targetObject == null?"选择对象物体":"对象物体: "+targetObject.name.Replace("(Billboard)",""), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(targetObject == null?"Select target object":"Target Object: "+targetObject.name.Replace("(Billboard)",""), EditorStyles.boldLabel);
             anyObject = (GameObject)EditorGUILayout.ObjectField(anyObject, typeof(GameObject), true);
         }
         
@@ -242,7 +242,7 @@ public class BillboardEditor : EditorWindow
               (!examObject.GetComponent<MeshRenderer>() ||
               !examObject.GetComponent<MeshFilter>()))
             {
-                Debug.LogWarning("这好像不是一个3D物体。(O_O)?");
+                Debug.LogWarning("This is probably not a 3D gameobject.");
 
                 anyObject = previousObject == null ? null : previousObject;
             }
@@ -260,20 +260,20 @@ public class BillboardEditor : EditorWindow
         
         }
 
-        furnaceState = hasPressedPreviewButton ? "光照关闭" : "光照开启";
+        furnaceState = hasPressedPreviewButton ? "Lights Out" : "Lights Back";
         if (GUILayout.Button(furnaceState)) 
         {
            
             if (!hasPressedPreviewButton)
             {
-                Debug.Log("开启Furnace Ambient。");
+                Debug.Log("Furnace Ambient has been set up");
                 hasPressedPreviewButton = true;
                 ToggleLighting(false);
                
             }
             else 
             {
-                Debug.Log("关闭Furnace Ambient。");
+                Debug.Log("Furnace Ambient has been shut down");
 
                 hasPressedPreviewButton = false;
                 ToggleLighting(true);
@@ -284,24 +284,24 @@ public class BillboardEditor : EditorWindow
         if (targetObject != null) 
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("刷新网格：", EditorStyles.boldLabel);
-            cullMiddle = EditorGUILayout.Toggle("去掉中间插片", cullMiddle);
+            EditorGUILayout.LabelField("Refresh Mesh：", EditorStyles.boldLabel);
+            cullMiddle = EditorGUILayout.Toggle("Cull center board", cullMiddle);
             billboardGen.cullMiddle = cullMiddle;
 
             if (!cullMiddle)
             {
 
-                yOffset = EditorGUILayout.Slider("Y-偏移", yOffset, -1f, 1f);
+                yOffset = EditorGUILayout.Slider("Y-Shift", yOffset, -1f, 1f);
             }
 
-            xOffset = EditorGUILayout.Slider("X-偏移", xOffset, -1f, 1f);
-            zOffset = EditorGUILayout.Slider("Z-偏移", zOffset, -1f, 1f);
+            xOffset = EditorGUILayout.Slider("X-Shift", xOffset, -1f, 1f);
+            zOffset = EditorGUILayout.Slider("Z-Shift", zOffset, -1f, 1f);
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("刷新贴图：", EditorStyles.boldLabel);
-            resolutionLevel = EditorGUILayout.IntSlider("贴图分辨率", resolutionLevel, 3, 8);
+            EditorGUILayout.LabelField("Refresh Texture：", EditorStyles.boldLabel);
+            resolutionLevel = EditorGUILayout.IntSlider("Texture Resolution", resolutionLevel, 3, 8);
             finalRes = (int)Mathf.Pow(2, resolutionLevel);
 
-            softNormal = EditorGUILayout.Toggle("软化深度", softNormal);
+            softNormal = EditorGUILayout.Toggle("Soften Normal", softNormal);
             billboardGen.softNormal = softNormal;
             if (softNormal != previousSoftNormal)
             {
@@ -309,21 +309,21 @@ public class BillboardEditor : EditorWindow
                 billboardGen.GenerateTexture();
             }
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("后处理：", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Post-Processes：", EditorStyles.boldLabel);
             
-            transitionScale = EditorGUILayout.Slider(transitionScale == 0f ? "关闭溶解渐变":"溶解渐变分辨率", transitionScale,0f,1f);
+            transitionScale = EditorGUILayout.Slider(transitionScale == 0f ? "Dither pattern is off":"Dither pattern resolution", transitionScale,0f,1f);
             billboardGen.boardMat.SetFloat("_ToonScale", transitionScale);
 
-            offset.y = EditorGUILayout.Slider("球形法线高度",offset.y,-billboardGen.boundSize.y/2, billboardGen.boundSize.y / 2);
+            offset.y = EditorGUILayout.Slider("Spherical normal height",offset.y,-billboardGen.boundSize.y/2, billboardGen.boundSize.y / 2);
 
-            detailNormal = EditorGUILayout.Toggle("法线细节", detailNormal);
+            detailNormal = EditorGUILayout.Toggle("Normal details", detailNormal);
             if (detailNormal) 
             {
-                normalSample = EditorGUILayout.Slider("法线取样间隔", normalSample, 0f, 1f);
-                blend = EditorGUILayout.Slider("细节混合", blend, 0f, 1f);
-                depthY = EditorGUILayout.Slider("Y-深度", depthY, 0f, 1f);
-                depthX = EditorGUILayout.Slider("X-深度", depthX, 0f, 1f);
-                depthZ = EditorGUILayout.Slider("Z-深度", depthZ, 0f, 1f);
+                normalSample = EditorGUILayout.Slider("Normla sample interval", normalSample, 0f, 1f);
+                blend = EditorGUILayout.Slider("Detail blend", blend, 0f, 1f);
+                depthY = EditorGUILayout.Slider("Y-Depth", depthY, 0f, 1f);
+                depthX = EditorGUILayout.Slider("X-Depth", depthX, 0f, 1f);
+                depthZ = EditorGUILayout.Slider("Z-Depth", depthZ, 0f, 1f);
 
                 billboardGen.boardMat.SetFloat("_Precision", normalSample);
                 billboardGen.boardMat.SetFloat("_DepthY", depthY);
@@ -355,12 +355,12 @@ public class BillboardEditor : EditorWindow
             {
                 if (targetObject.transform.childCount == 0)
                 {
-                    Debug.Log("添加对象" + targetObject.name +"(单体)");
+                    Debug.Log("Target added" + targetObject.name +"(Single Object)");
                     billboardGen.includeChildren = false;
                 }
                 else
                 {
-                    Debug.Log("添加对象" + targetObject.name +"(组)");
+                    Debug.Log("Target added" + targetObject.name +"(Children Group)");
                     billboardGen.includeChildren = true;
                 }
             }
@@ -368,19 +368,19 @@ public class BillboardEditor : EditorWindow
             {
                 if (targetObject.transform.childCount == 0)
                 {
-                    Debug.Log("已更换对象" + targetObject.name + "(单体)");
+                    Debug.Log("Target has been changed" + targetObject.name + "(Single Object)");
                     billboardGen.includeChildren = false;
                 }
                 else
                 {
-                    Debug.Log("已更换对象" + targetObject.name + "(组)");
+                    Debug.Log("Target has been changed" + targetObject.name + "(Children Group)");
                     billboardGen.includeChildren = true;
                 }
 
             }
             if (billboardGen.targetObject == null)
             {
-                Debug.Log("丢失对象物体。");
+                Debug.Log("Target has lost");
             }
             else
             {
@@ -427,18 +427,18 @@ public class BillboardEditor : EditorWindow
 
             
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("目标文件夹：", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Target Folder：", EditorStyles.boldLabel);
 
             filePath = EditorGUILayout.TextField("Assets/", filePath);
             {
                 EditorGUILayout.Space();
-                manualName = EditorGUILayout.Toggle("手动前缀", manualName);
+                manualName = EditorGUILayout.Toggle("Manual Prefix", manualName);
 
                 if (manualName)
                 {
-                    textureName = EditorGUILayout.TextField("贴图前缀", textureName == null? "T":textureName);
-                    materialName = EditorGUILayout.TextField("材质前缀", materialName == null? "M":materialName);
-                    meshName = EditorGUILayout.TextField("网格前缀", meshName == null? "B":meshName);
+                    textureName = EditorGUILayout.TextField("Texture Prefix", textureName == null? "T":textureName);
+                    materialName = EditorGUILayout.TextField("Material Prefix", materialName == null? "M":materialName);
+                    meshName = EditorGUILayout.TextField("Mesh Prefix", meshName == null? "B":meshName);
                 }
                 else 
                 {
@@ -449,10 +449,10 @@ public class BillboardEditor : EditorWindow
             }
             EditorGUILayout.Space();
 
-            manualSave = EditorGUILayout.Toggle("手动储存", manualSave);
+            manualSave = EditorGUILayout.Toggle("Manual Save", manualSave);
             if (manualSave) 
             {
-                if (GUILayout.Button("保存网格"))
+                if (GUILayout.Button("Save Meshes"))
                 {
                     if (billboardGen.boardMesh != null)
                     {
@@ -462,12 +462,12 @@ public class BillboardEditor : EditorWindow
                     }
                     else
                     {
-                        Debug.LogWarning("无网格可储存");
+                        Debug.LogWarning("No mesh to save");
                     }
 
                 }
 
-                if (GUILayout.Button("保存贴图"))
+                if (GUILayout.Button("Save Textures"))
                 {
                     if (billboardGen.capturedTexture != null)
                     {
@@ -477,11 +477,11 @@ public class BillboardEditor : EditorWindow
                     }
                     else
                     {
-                        Debug.LogWarning("无材质可储存");
+                        Debug.LogWarning("No texture to save");
                     }
 
                 }
-                includeMaterial = EditorGUILayout.Toggle("顺便生成材质", includeMaterial);
+                includeMaterial = EditorGUILayout.Toggle("Also Generate Material", includeMaterial);
             }
         }
         GUILayout.FlexibleSpace();
@@ -490,7 +490,7 @@ public class BillboardEditor : EditorWindow
             if (!hasGeneratedMesh)
             {
 
-                if (GUILayout.Button("生成插片"))
+                if (GUILayout.Button("Generate Billboard"))
                 {
 
                     if (billboardGen.targetObject != null && billboardGen.boardMat != null)
@@ -510,33 +510,33 @@ public class BillboardEditor : EditorWindow
                             billboardGen.GenerateBillboard(yOffset, xOffset, zOffset);
 
                             hasGeneratedMesh = true;
-                            Debug.Log("生成插片，材质分辨率：" + resolutionLevel + "*" + resolutionLevel);
+                            Debug.Log("Billboard Generated, Texture resolution：" + resolutionLevel + "*" + resolutionLevel);
                         }
                         else
                         {
-                            Debug.LogWarning("插片已经生成。");
+                            Debug.LogWarning("Billboard has been generated");
                         }
 
                     }
                     else if (billboardGen.targetObject == null && billboardGen.boardMat == null)
                     {
-                        Debug.LogWarning("请选择对象物体与插片材料。");
+                        Debug.LogWarning("Please select billboard target object and material");
                     }
                     else if (billboardGen.targetObject != null && billboardGen.boardMat == null)
                     {
-                        Debug.LogWarning("请选择插片材料。");
+                        Debug.LogWarning("Please select billboard material");
                     }
                     else if (billboardGen.targetObject == null && billboardGen.boardMat != null)
                     {
-                        Debug.LogWarning("请选择对象物体。o((⊙﹏⊙))o");
+                        Debug.LogWarning("Please select a target");
                     }
                 }
             }
             else
             {
-                prefabName = EditorGUILayout.TextField("更改命名规范：", prefabName);
+                prefabName = EditorGUILayout.TextField("Change Naming Scheme：", prefabName);
                 EditorGUILayout.LabelField(prefabName == "" || prefabName == null ? targetObject.name.Replace("(Billboard)", "") : prefabName, EditorStyles.boldLabel);
-                if (GUILayout.Button("一键生成Prefab"))
+                if (GUILayout.Button("Generate Prefab"))
                 {
                     if (billboardGen.capturedTexture != null && billboardGen.boardMesh != null)
                     {
@@ -547,23 +547,23 @@ public class BillboardEditor : EditorWindow
             }
 
 
-            if (GUILayout.Button("清除插片"))
+            if (GUILayout.Button("Clear Billboard"))
             {
                 if (billboardGen.targetObject != null)
                 {
                     if (hasGeneratedMesh)
                     {
                         ResetTarget();
-                        Debug.Log("成功清除。");
+                        Debug.Log("Cleard successfully");
                     }
                     else
                     {
-                        Debug.LogWarning("插片已经清除。");
+                        Debug.LogWarning("Billboard has been cleared");
                     }
                 }
                 else
                 {
-                    Debug.LogWarning("无插片可清除。");
+                    Debug.LogWarning("No billboard to clear");
                 }
             }
         }
@@ -653,11 +653,11 @@ public class BillboardEditor : EditorWindow
             }
             else 
             {
-                Debug.Log("材质路径不存在，无法调整导入信息，尝试重启工具。");
+                Debug.Log("Material file path is null, could not adjust import info, try restart the tool");
             }
             
             AssetDatabase.Refresh();
-            Debug.Log("存储贴图" + name + "到Assets/" + filePath + "文件夹。");
+            Debug.Log("Texture" + name + " has been saved to Assets/" + filePath + "folder");
             if (generateMat)
             {
                 string matName = materialName == null? "M_"+ preName:materialName + "_" + preName;
@@ -689,12 +689,12 @@ public class BillboardEditor : EditorWindow
             AssetDatabase.CreateAsset(boardMat, finalPath + finalMaterialName + ".asset");
 
                 AssetDatabase.Refresh();
-                Debug.Log("存储材质" + matName + "到Assets/" + filePath + "文件夹。");
+                Debug.Log("Material" + matName + "has been saved to Assets/" + filePath + "folder");
             }   
         }
         else 
         {
-            Debug.LogWarning("贴图对象消失。");
+            Debug.LogWarning("Texture target lost");
         }
         
     }
@@ -715,7 +715,7 @@ public class BillboardEditor : EditorWindow
         AssetDatabase.CreateAsset(billboardGen.boardMesh,finalPath + finalMeshName +".asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("存储网格" + name + "到Assets/" + filePath + "文件夹。");
+        Debug.Log("Mesh" + name + "has been saved to Assets/" + filePath + "folder");
         if (instantiate) 
         {
            
@@ -734,7 +734,7 @@ public class BillboardEditor : EditorWindow
             
             string finalPrefabName = AddFileIndex(prefabPath, preName,".prefab");
             PrefabUtility.CreatePrefab(prefabPath + finalPrefabName + ".prefab", boardObj);
-            Debug.Log("成功创建" + targetObject.name.Replace("(Billboard)", "") + "的prefab于" + prefabPath + "文件夹");
+            Debug.Log("Successfully created" + targetObject.name.Replace("(Billboard)", "") + "prefab and saved to" + prefabPath + "folder");
             DestroyImmediate(boardObj);
         }
         
