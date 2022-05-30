@@ -67,7 +67,7 @@ public class BillboardEditor : EditorWindow
     [MenuItem("Tools/Billboard工具")]
     public static void OpenWindow() 
     {
-        BillboardEditor window = GetWindow<BillboardEditor>("Billboard工具");
+        BillboardEditor window = GetWindow<BillboardEditor>("Billboard Tool");
         window.minSize = new Vector2(400, 700);
         window.Show();
     }
